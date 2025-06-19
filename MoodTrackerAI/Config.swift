@@ -1,3 +1,8 @@
+//
+//  Config.swift
+//  EmberNote
+//
+
 import Foundation
 
 struct Config {

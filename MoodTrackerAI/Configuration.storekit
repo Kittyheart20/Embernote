@@ -2,7 +2,7 @@
     "identifier" : "Configuration",
     "products" : [
         {
-            "displayPrice" : "4.99",
+            "displayPrice" : "2.99",
             "familyShareable" : false,
             "internalID" : "premium_monthly",
             "localizations" : [
@@ -47,7 +47,7 @@
                 {
                     "adHocOffers" : [],
                     "codeOffers" : [],
-                    "displayPrice" : "4.99",
+                    "displayPrice" : "2.99",
                     "familyShareable" : false,
                     "groupNumber" : 1,
                     "internalID" : "premium_monthly",

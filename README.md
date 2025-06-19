@@ -1,2 +1,0 @@
-# Embernote
-MoodtrackerAI

@@ -1,6 +1,6 @@
 //
-//  MoodTrackerAIApp.swift
-//  MoodTrackerAI
+//  EmberNoteApp.swift
+//  EmberNote
 //
 //  Created by Chenkai Liu on 6/3/25.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct MoodTrackerAIApp: App {
+struct EmberNoteApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

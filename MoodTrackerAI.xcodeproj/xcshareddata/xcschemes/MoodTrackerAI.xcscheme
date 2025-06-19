@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "04586D252DF0024B0000609F"
-               BuildableName = "MoodTrackerAI.app"
-               BlueprintName = "MoodTrackerAI"
+               BuildableName = "EmberNote.app"
+               BlueprintName = "EmberNote"
                ReferencedContainer = "container:MoodTrackerAI.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -31,7 +31,7 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "04586D252DF0024B0000609F"
-            BuildableName = "MoodTrackerAI.app"
-            BlueprintName = "MoodTrackerAI"
+            BuildableName = "EmberNote.app"
+            BlueprintName = "EmberNote"
             ReferencedContainer = "container:MoodTrackerAI.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -65,8 +65,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "04586D252DF0024B0000609F"
-            BuildableName = "MoodTrackerAI.app"
-            BlueprintName = "MoodTrackerAI"
+            BuildableName = "EmberNote.app"
+            BlueprintName = "EmberNote"
             ReferencedContainer = "container:MoodTrackerAI.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

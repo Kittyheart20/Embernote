@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  MoodTrackerAI
+//  EmberNote
 //
 
 import SwiftUI
@@ -304,6 +304,7 @@ struct EntriesListView: View {
 struct TimeframeGraphCard: View {
     let entries: [MoodEntry]
     let title: String
+    let timeframe: Timeframe
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -311,7 +312,7 @@ struct TimeframeGraphCard: View {
                 .font(.headline)
                 .foregroundColor(.themeAccent)
             
-            MoodTrendGraph(entries: entries)
+            MoodTrendGraph(entries: entries, timeframe: timeframe)
                 .frame(height: 150)
         }
         .padding()
@@ -608,7 +609,7 @@ struct TimeframeInsightView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.themeAccent)
                     
-                    MoodTrendGraph(entries: entries)
+                    MoodTrendGraph(entries: entries, timeframe: timeframe)
                         .frame(height: 200)
                 }
                 .padding(20) // Increased padding
@@ -818,13 +819,53 @@ struct InsightsView: View {
 
 struct MoodTrendGraph: View {
     let entries: [MoodEntry]
+    let timeframe: Timeframe
     private let calendar = Calendar.current
     
     private var dataPoints: [MoodDataPoint] {
         let sortedEntries = entries.sorted { $0.date < $1.date }
-        return sortedEntries.map { entry in
-            MoodDataPoint(date: entry.date, value: entry.mood.rating)
+        
+        // Group entries by time period based on timeframe
+        var groupedEntries: [String: [MoodEntry]] = [:]
+        
+        for entry in sortedEntries {
+            let key = getTimeframeKey(for: entry.date, timeframe: timeframe)
+            if groupedEntries[key] == nil {
+                groupedEntries[key] = []
+            }
+            groupedEntries[key]?.append(entry)
         }
+        
+        // Convert grouped entries to data points with averaged ratings
+        let dataPoints = groupedEntries.compactMap { (key, entriesInPeriod) -> MoodDataPoint? in
+            guard let firstEntry = entriesInPeriod.first else { return nil }
+            
+            // Calculate average rating for this time period
+            let averageRating = entriesInPeriod.reduce(0.0) { $0 + $1.mood.rating } / Double(entriesInPeriod.count)
+            
+            return MoodDataPoint(date: firstEntry.date, value: averageRating)
+        }
+        
+        // Sort by date and return
+        return dataPoints.sorted { $0.date < $1.date }
+    }
+    
+    private func getTimeframeKey(for date: Date, timeframe: Timeframe) -> String {
+        let formatter = DateFormatter()
+        
+        switch timeframe {
+        case .year:
+            // Group by month within the year
+            formatter.dateFormat = "yyyy-MM"
+        case .month:
+            // Group by day within the month
+            formatter.dateFormat = "yyyy-MM-dd"
+        case .week:
+            // Group by day within the week
+            formatter.dateFormat = "yyyy-MM-dd"
+        }
+        
+        return formatter.string(from: date)
     }
     
     var body: some View {
@@ -893,11 +934,11 @@ struct MoodTrendGraph: View {
                             }
                         }
                         
-                        // Date labels
+                        // Date labels - formatted based on timeframe
                         HStack {
                             ForEach(dataPoints.indices, id: \.self) { index in
                                 if index % 2 == 0 || index == dataPoints.count - 1 {
-                                    Text(dataPoints[index].date, style: .date)
+                                    Text(formatDateForTimeframe(dataPoints[index].date, timeframe: timeframe))
                                         .font(.caption2)
                                         .foregroundColor(.gray)
                                         .frame(maxWidth: .infinity, alignment: .center)
@@ -910,6 +951,24 @@ struct MoodTrendGraph: View {
                 }
             }
         }
+    }
+    
+    private func formatDateForTimeframe(_ date: Date, timeframe: Timeframe) -> String {
+        let formatter = DateFormatter()
+        
+        switch timeframe {
+        case .year:
+            // Year view: show only month names (Jan, Feb, etc.)
+            formatter.dateFormat = "MMM"
+        case .month:
+            // Month view: show only day numbers (1, 2, 3, etc.)
+            formatter.dateFormat = "d"
+        case .week:
+            // Week view: show day abbreviations (Mon, Tue, etc.)
+            formatter.dateFormat = "E"
+        }
+        
+        return formatter.string(from: date)
     }
 }
 
@@ -975,7 +1034,7 @@ struct ContentView: View {
                             upgradeButton
                         }
                         ToolbarItem(placement: .principal) {
-                            Text("Mood Tracker")
+                            Text("EmberNote")
                                 .font(.system(.headline, design: .rounded))
                                 .foregroundColor(.themeAccent)
                         }
@@ -1148,7 +1207,7 @@ struct ReflectionPromptView: View {
     @State private var userReflection = ""
     @State private var aiResponse: String?
     @State private var isGeneratingResponse = false
-
+    
     // Separate general and AI prompts
     var generalPrompts: [ReflectionPrompt] {
         [
@@ -1178,12 +1237,12 @@ struct ReflectionPromptView: View {
         var prompts: [ReflectionPrompt] = []
         
         // Always add some base AI prompts
-        prompts.append(contentsOf: [
-            ReflectionPrompt(
+            prompts.append(contentsOf: [
+                ReflectionPrompt(
                 question: "What patterns do you notice in your recent moods?",
                 systemPrompt: "Help the user identify patterns in their emotional experiences."
-            ),
-            ReflectionPrompt(
+                ),
+                ReflectionPrompt(
                 question: "What activities or situations tend to boost your mood?",
                 systemPrompt: "Guide the user to recognize positive influences in their life."
             )
@@ -1226,7 +1285,7 @@ struct ReflectionPromptView: View {
         
         return prompts
     }
-
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -1321,56 +1380,56 @@ struct ReflectionPromptView: View {
                 NavigationView {
                     ZStack {
                         Color.themeBeige.ignoresSafeArea()
-                        ScrollView {
-                            VStack(spacing: 24) {
-                                Text(prompt.question)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.themeAccent)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
-                                    .padding(.top, 8)
-                                
-                                PlaceholderTextEditor(
-                                    placeholder: "Take a moment to pause and reflect. What thoughts, feelings, or insights come to mind? Your reflection can be as brief or detailed as you'd like...",
-                                    text: $userReflection,
-                                    height: 200
-                                )
+                ScrollView {
+                    VStack(spacing: 24) {
+                            Text(prompt.question)
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.themeAccent)
+                                .multilineTextAlignment(.center)
                                 .padding(.horizontal)
-                                
-                                // Action Buttons
+                                .padding(.top, 8)
+                            
+                            PlaceholderTextEditor(
+                                placeholder: "Take a moment to pause and reflect. What thoughts, feelings, or insights come to mind? Your reflection can be as brief or detailed as you'd like...",
+                                text: $userReflection,
+                                height: 200
+                            )
+                            .padding(.horizontal)
+                            
+                            // Action Buttons
                                 if subscriptionManager.canAccessAIFeatures() {
-                                    VStack(spacing: 16) {
-                                        Button(action: {
-                                            Task {
-                                                isGeneratingResponse = true
-                                                await getAIInsight(for: prompt)
-                                                isGeneratingResponse = false
-                                            }
-                                        }) {
-                                            HStack {
-                                                if isGeneratingResponse {
-                                                    ProgressView()
-                                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                                        .padding(.trailing, 8)
-                                                }
-                                                Label(
-                                                    isGeneratingResponse ? "Generating..." : "Get AI Insight",
-                                                    systemImage: "sparkles"
-                                                )
-                                            }
-                                            .padding()
-                                            .frame(maxWidth: .infinity)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .fill(Color.themeAccent)
-                                            )
-                                            .foregroundColor(.white)
-                                        }
-                                        .disabled(userReflection.isEmpty || isGeneratingResponse)
-                                        .opacity((userReflection.isEmpty || isGeneratingResponse) ? 0.6 : 1.0)
+                            VStack(spacing: 16) {
+                                Button(action: {
+                                    Task {
+                                        isGeneratingResponse = true
+                                        await getAIInsight(for: prompt)
+                                        isGeneratingResponse = false
                                     }
-                                    .padding(.horizontal)
+                                }) {
+                                    HStack {
+                                        if isGeneratingResponse {
+                                            ProgressView()
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                                .padding(.trailing, 8)
+                                        }
+                                        Label(
+                                            isGeneratingResponse ? "Generating..." : "Get AI Insight",
+                                            systemImage: "sparkles"
+                                        )
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.themeAccent)
+                                    )
+                                    .foregroundColor(.white)
+                                }
+                                .disabled(userReflection.isEmpty || isGeneratingResponse)
+                                .opacity((userReflection.isEmpty || isGeneratingResponse) ? 0.6 : 1.0)
+                            }
+                            .padding(.horizontal)
                                 } else {
                                     HStack(spacing: 8) {
                                         Image(systemName: "lock.fill").foregroundColor(.gray)
@@ -1382,100 +1441,100 @@ struct ReflectionPromptView: View {
                                     .background(RoundedRectangle(cornerRadius: 12).fill(Color.themeBeigeDark))
                                     .padding(.horizontal)
                                 }
-                                
+                            
                                 if let response = aiResponse, subscriptionManager.canAccessAIFeatures() {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        Text("AI Insight")
-                                            .font(.headline)
-                                            .foregroundColor(.themeAccent)
-                                        Text(response)
-                                            .font(.body)
-                                            .lineSpacing(4)
-                                    }
-                                    .padding()
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.themeBeigeDark)
-                                    )
-                                    .padding(.horizontal)
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("AI Insight")
+                                        .font(.headline)
+                                        .foregroundColor(.themeAccent)
+                                    Text(response)
+                                        .font(.body)
+                                        .lineSpacing(4)
                                 }
-                                
-                                // Save Options
-                                VStack(spacing: 16) {
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.themeBeigeDark)
+                                )
+                                .padding(.horizontal)
+                            }
+                            
+                            // Save Options
+                            VStack(spacing: 16) {
                                     if aiResponse != nil && subscriptionManager.canAccessAIFeatures() {
-                                        Button(action: {
-                                            saveReflection(prompt: prompt.question, response: aiResponse)
+                                    Button(action: {
+                                        saveReflection(prompt: prompt.question, response: aiResponse)
                                             selectedPrompt = nil
                                             userReflection = ""
                                             aiResponse = nil
-                                            dismiss()
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "square.and.arrow.down.fill")
-                                                Text("Save Reflection with AI Insight")
-                                            }
-                                            .padding()
-                                            .frame(maxWidth: .infinity)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .fill(Color.green)
-                                            )
-                                            .foregroundColor(.white)
-                                        }
-                                    }
-                                    
-                                    Button(action: {
-                                        saveReflection(prompt: prompt.question, response: nil)
-                                        selectedPrompt = nil
-                                        userReflection = ""
-                                        aiResponse = nil
                                         dismiss()
                                     }) {
                                         HStack {
-                                            Image(systemName: "square.and.arrow.down")
-                                            Text("Save Reflection Only")
+                                            Image(systemName: "square.and.arrow.down.fill")
+                                            Text("Save Reflection with AI Insight")
                                         }
                                         .padding()
                                         .frame(maxWidth: .infinity)
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.themeAccentLight)
+                                                .fill(Color.green)
                                         )
                                         .foregroundColor(.white)
                                     }
                                 }
-                                .disabled(userReflection.isEmpty)
-                                .opacity(userReflection.isEmpty ? 0.6 : 1.0)
-                                .padding(.horizontal)
+                                
+                                Button(action: {
+                                        saveReflection(prompt: prompt.question, response: nil)
+                                        selectedPrompt = nil
+                                        userReflection = ""
+                                        aiResponse = nil
+                                    dismiss()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "square.and.arrow.down")
+                                        Text("Save Reflection Only")
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.themeAccentLight)
+                                    )
+                                    .foregroundColor(.white)
+                                }
                             }
-                            .padding(.vertical)
+                            .disabled(userReflection.isEmpty)
+                            .opacity(userReflection.isEmpty ? 0.6 : 1.0)
+                            .padding(.horizontal)
+                    }
+                    .padding(.vertical)
+                }
+            }
+                    .dismissKeyboardOnTap()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Back") {
+                            selectedPrompt = nil
+                            userReflection = ""
+                            aiResponse = nil
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                                selectedPrompt = nil
+                                userReflection = ""
+                                aiResponse = nil
+                        dismiss()
+                            }
                         }
                     }
-                    .dismissKeyboardOnTap()
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Back") {
-                                selectedPrompt = nil
-                                userReflection = ""
-                                aiResponse = nil
-                            }
-                        }
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Done") {
-                                selectedPrompt = nil
-                                userReflection = ""
-                                aiResponse = nil
-                                dismiss()
-                            }
-                        }
                     }
                 }
             }
         }
     }
-}
-
+    
 // Add back the missing functions
 extension ReflectionPromptView {
     func getAIInsight(for prompt: ReflectionPrompt) async {
@@ -1699,7 +1758,7 @@ struct CalendarView: View {
                 
                 Spacer()
                 
-                Text(currentMonth, format: .dateTime.month().year())
+                Text(currentMonth, format: .dateTime.month(.wide))
                     .font(.title2.bold())
                     .onTapGesture {
                         withAnimation {
@@ -1875,16 +1934,11 @@ struct MoodSelectionView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                         
-                        if mood.isCustom {
                             Text(mood.name)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .lineLimit(1)
                                 .frame(maxWidth: 60)
-                        } else {
-                            Color.clear
-                                .frame(height: 14)
-                        }
                     }
                     .frame(height: 82)
                 }
@@ -2370,7 +2424,7 @@ struct MoodTrackerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("Mood Tracker")
+                Text("EmberNote")
                     .font(.system(.headline, design: .rounded))
                     .foregroundColor(.themeAccent)
             }

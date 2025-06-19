@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		04586D262DF0024B0000609F /* MoodTrackerAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoodTrackerAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04586D262DF0024B0000609F /* EmberNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmberNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC5A86172DF697E500B8F208 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -49,7 +49,7 @@
 		04586D272DF0024B0000609F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				04586D262DF0024B0000609F /* MoodTrackerAI.app */,
+				04586D262DF0024B0000609F /* EmberNote.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,7 +67,7 @@
 /* Begin PBXNativeTarget section */
 		04586D252DF0024B0000609F /* MoodTrackerAI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 04586D342DF0024C0000609F /* Build configuration list for PBXNativeTarget "MoodTrackerAI" */;
+			buildConfigurationList = 04586D342DF0024C0000609F /* Build configuration list for PBXNativeTarget "EmberNote" */;
 			buildPhases = (
 				04586D222DF0024B0000609F /* Sources */,
 				04586D232DF0024B0000609F /* Frameworks */,
@@ -80,12 +80,12 @@
 			fileSystemSynchronizedGroups = (
 				04586D282DF0024B0000609F /* MoodTrackerAI */,
 			);
-			name = MoodTrackerAI;
+			name = EmberNote;
 			packageProductDependencies = (
 				DC5A860C2DF6812B00B8F208 /* Models */,
 			);
-			productName = MoodTrackerAI;
-			productReference = 04586D262DF0024B0000609F /* MoodTrackerAI.app */;
+			productName = EmberNote;
+			productReference = 04586D262DF0024B0000609F /* EmberNote.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -103,7 +103,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 04586D212DF0024B0000609F /* Build configuration list for PBXProject "MoodTrackerAI" */;
+			buildConfigurationList = 04586D212DF0024B0000609F /* Build configuration list for PBXProject "EmberNote" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -276,11 +276,11 @@
 				DEVELOPMENT_TEAM = Q3V9M95D7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EmberNote; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -305,11 +305,11 @@
 				DEVELOPMENT_TEAM = Q3V9M95D7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EmberNote; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -326,7 +326,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		04586D212DF0024B0000609F /* Build configuration list for PBXProject "MoodTrackerAI" */ = {
+		04586D212DF0024B0000609F /* Build configuration list for PBXProject "EmberNote" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				04586D322DF0024C0000609F /* Debug */,
@@ -335,7 +335,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		04586D342DF0024C0000609F /* Build configuration list for PBXNativeTarget "MoodTrackerAI" */ = {
+		04586D342DF0024C0000609F /* Build configuration list for PBXNativeTarget "EmberNote" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				04586D352DF0024C0000609F /* Debug */,

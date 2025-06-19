@@ -1,3 +1,8 @@
+//
+//  SubscriptionView.swift
+//  EmberNote
+//
+
 import SwiftUI
 import StoreKit
 
@@ -51,8 +56,8 @@ private struct FeatureList: View {
                 Spacer()
                 
                 if tier == .premium {
-                    Text("$4.99/month")
-                        .font(.headline)
+                    Text("$2.99/month")
+                        .font(.title2.bold())
                         .foregroundColor(.themeAccent)
                 }
             }
@@ -103,8 +108,10 @@ struct SubscriptionView: View {
                     
                     // Subscribe button section
                     if subscriptionManager.currentSubscriptionTier == .free {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 24) {
                             ForEach(subscriptionManager.subscriptions) { subscription in
+                                VStack(spacing: 16) {
+                                    // Subscribe button with integrated pricing
                                 Button(action: {
                                     Task {
                                         do {
@@ -115,7 +122,172 @@ struct SubscriptionView: View {
                                         }
                                     }
                                 }) {
-                                    Text("Start 7-Day Free Trial")
+                                        VStack(spacing: 8) {
+                                            // Check if there's an introductory offer AND user is eligible for it
+                                            if let introOffer = subscription.subscription?.introductoryOffer,
+                                               introOffer.paymentMode == .freeTrial,
+                                               subscriptionManager.isEligibleForIntroOffer(subscription) {
+                                                Text("Try It Free")
+                                                    .font(.headline)
+                                                    .foregroundColor(.white)
+                                                
+                                                let trialPeriod = introOffer.period
+                                                let trialText = "\(trialPeriod.value) \(periodUnitString(trialPeriod.unit))\(trialPeriod.value > 1 ? "s" : "") free, then \(subscription.displayPrice)/month"
+                                                Text(trialText)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.white.opacity(0.9))
+                                            } else {
+                                                Text("Subscribe Now")
+                                                    .font(.headline)
+                                                    .foregroundColor(.white)
+                                                
+                                                Text("\(subscription.displayPrice)/month")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.white.opacity(0.9))
+                                            }
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 20)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .fill(Color.themeAccent)
+                                        )
+                                        .padding(.horizontal)
+                                }
+                                
+                                    // Simple disclaimer
+                                    Text("Cancel anytime")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        
+                        #if DEBUG
+                        // Debug button to simulate premium subscription
+                        Button(action: {
+                            subscriptionManager.debugSubscribe()
+                        }) {
+                            Text("Debug: Simulate Premium")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.blue, lineWidth: 1)
+                                )
+                                .padding(.horizontal)
+                        }
+                        #endif
+                    } else {
+                        VStack(spacing: 16) {
+                            // Show different icons based on subscription status
+                            if subscriptionManager.isSubscriptionCanceled {
+                                Image(systemName: "exclamationmark.circle.fill")
+                                    .font(.system(size: 44))
+                                    .foregroundColor(.orange)
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 44))
+                                    .foregroundColor(.green)
+                            }
+                            
+                            // Show different titles based on subscription status
+                            if subscriptionManager.isSubscriptionCanceled {
+                                Text("Subscription Canceled")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                            } else {
+                                Text("You're a Premium Member")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                            }
+                            
+                            // Show expiration information
+                            if let expirationText = subscriptionManager.subscriptionExpirationText {
+                                if subscriptionManager.isSubscriptionCanceled {
+                                    VStack(spacing: 4) {
+                                        Text("Your premium access \(expirationText)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.orange)
+                                            .multilineTextAlignment(.center)
+                                        
+                                        Text("Resubscribe to continue enjoying premium features")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                            .multilineTextAlignment(.center)
+                                    }
+                                } else {
+                                    VStack(spacing: 4) {
+                                        Text("Thank you for your support!")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                        
+                                        Text("Your subscription \(expirationText)")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            } else {
+                                Text("Thank you for your support!")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            // Show different buttons based on subscription status
+                            if subscriptionManager.isSubscriptionCanceled {
+                                VStack(spacing: 12) {
+                                    // Resubscribe button for canceled subscriptions
+                                    ForEach(subscriptionManager.subscriptions) { subscription in
+                                        Button(action: {
+                                            Task {
+                                                do {
+                                                    try await subscriptionManager.purchase(subscription)
+                                                    dismiss()
+                                                } catch {
+                                                    // Error handling is done in SubscriptionManager
+                                                }
+                                            }
+                                        }) {
+                                            Text("Resubscribe for \(subscription.displayPrice)/month")
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                                .frame(maxWidth: .infinity)
+                                                .padding()
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .fill(Color.themeAccent)
+                                                )
+                                                .padding(.horizontal)
+                                        }
+                                    }
+                                    
+                                    // Secondary manage button
+                                    Button(action: {
+                                        Task {
+                                            await subscriptionManager.manageSubscriptions()
+                                        }
+                                    }) {
+                                        Text("Manage Subscription")
+                                            .font(.subheadline)
+                                            .foregroundColor(.themeAccent)
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(Color.themeAccent, lineWidth: 1)
+                                            )
+                                            .padding(.horizontal)
+                                    }
+                                }
+                            } else {
+                                Button(action: {
+                                    Task {
+                                        await subscriptionManager.manageSubscriptions()
+                                    }
+                                }) {
+                                    Text("Manage Subscription")
                                         .font(.headline)
                                         .foregroundColor(.white)
                                         .frame(maxWidth: .infinity)
@@ -126,46 +298,24 @@ struct SubscriptionView: View {
                                         )
                                         .padding(.horizontal)
                                 }
-                                
-                                if let intro = subscription.subscription?.introductoryOffer {
-                                    let unit = periodUnitString(intro.period.unit)
-                                    let plural = intro.period.value > 1 ? "s" : ""
-                                    Text("After trial, \(subscription.displayPrice)/month")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                }
                             }
-                        }
-                    } else {
-                        VStack(spacing: 16) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 44))
-                                .foregroundColor(.green)
                             
-                            Text("You're a Premium Member")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            
-                            Text("Thank you for your support!")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            
+                            #if DEBUG
                             Button(action: {
-                                Task {
-                                    await subscriptionManager.manageSubscriptions()
-                                }
+                                subscriptionManager.debugUnsubscribe()
                             }) {
-                                Text("Manage Subscription")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                                Text("Debug: Unsubscribe")
+                                    .font(.subheadline)
+                                    .foregroundColor(.red)
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.themeAccent)
+                                            .stroke(Color.red, lineWidth: 1)
                                     )
                                     .padding(.horizontal)
                             }
+                            #endif
                         }
                         .padding()
                     }
@@ -192,9 +342,9 @@ struct SubscriptionView: View {
                             .padding(.horizontal)
                         
                         HStack(spacing: 4) {
-                            Link("Terms of Service", destination: URL(string: "https://example.com/terms")!)
+                            Link("Terms of Service", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
                             Text("•")
-                            Link("Privacy Policy", destination: URL(string: "https://example.com/privacy")!)
+                            Link("Privacy Policy", destination: URL(string: "https://www.privacypolicies.com/live/e7b6b6d6-ae8d-4d02-be69-f8c2eca02440")!)
                         }
                         .font(.caption)
                         .foregroundColor(.gray)

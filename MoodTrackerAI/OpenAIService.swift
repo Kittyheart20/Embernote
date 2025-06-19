@@ -1,3 +1,8 @@
+//
+//  OpenAIService.swift
+//  EmberNote
+//
+
 import Foundation
 import SwiftUI
 
